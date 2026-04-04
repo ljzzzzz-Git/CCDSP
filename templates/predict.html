@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>药物预测 - 结直肠癌药物敏感性预测系统</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: #2196F3;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 12px;
+            color: #666;
+        }
+        .progress-step {
+            padding: 2px 8px;
+            border-radius: 12px;
+            background-color: #f0f0f0;
+        }
+        .progress-step.active {
+            background-color: #2196F3;
+            color: white;
+        }
+        #progressDetail {
+            font-size: 14px;
+            color: #333;
+            text-align: center;
+            margin: 10px 0;
+        }
+        .hidden { display: none !important; }
+        .predict-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 20px;
+        }
+        .predict-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .predict-header a {
+            color: #3498db;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .file-group-container { margin-bottom: 20px; }
+        .file-input-group { margin-bottom: 18px; }
+        .file-input-group label { font-weight: bold; margin-bottom: 6px; display: block; }
+        .tips { font-size:12px; color:#666; margin-top:4px; }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .primary-btn { background: #2196F3; color:white; }
+        .success-btn { background: #28a745; color:white; }
+        .error-text { color:#dc3545; }
+    </style>
+</head>
+<body>
+    <header class="main-header">
+        <div class="container">
+            <div class="logo">
+                <i class="fa-solid fa-microscope"></i>
+                <h1>结直肠癌药物敏感性预测系统</h1>
+            </div>
+            <nav class="main-nav">
+                <a href="/"><i class="fa-solid fa-home"></i> 主页</a>
+                <a href="/predict" class="active"><i class="fa-solid fa-flask-vial"></i> 药物预测</a>
+                <a href="/reference"><i class="fa-solid fa-database"></i> 参考数据</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="predict-container">
+        <div class="predict-header">
+            <h2>药物敏感性预测</h2>
+            <a href="/"><i class="fa-solid fa-arrow-left"></i> 返回主页</a>
+        </div>
+
+        <div class="upload-box">
+            <form id="uploadForm" enctype="multipart/form-data">
+                <input type="hidden" id="taskId" name="task_id" value="{{ task_id }}">
+                
+                <div class="file-group-container">
+                    <div class="file-input-group">
+                        <label>1. 细胞突变数据CSV</label>
+                        <input type="file" name="mut_csv" accept=".csv" required>
+                        <p class="tips">必须包含：cell_idx、cell_line</p>
+                    </div>
+                    <div class="file-input-group">
+                        <label>2. 药物SMILE数据CSV</label>
+                        <input type="file" name="smile_csv" accept=".csv" required>
+                        <p class="tips">必须包含：drug_idx、drug_name</p>
+                    </div>
+                    <div class="file-input-group">
+                        <label>3. 细胞ssGSEA富集数据CSV</label>
+                        <input type="file" name="ssgsea_csv" accept=".csv" required>
+                        <p class="tips">必须包含：cell_idx、cell_name</p>
+                    </div>
+                </div>
+
+                <button type="submit" id="predictBtn" class="btn primary-btn">开始预测</button>
+            </form>
+
+            <div id="progressArea" class="hidden">
+                <div class="progress-steps">
+                    <div class="progress-step" id="step1">1. 上传文件</div>
+                    <div class="progress-step" id="step2">2. 验证格式</div>
+                    <div class="progress-step" id="step3">3. 加载模型</div>
+                    <div class="progress-step" id="step4">4. 批量预测</div>
+                    <div class="progress-step" id="step5">5. 生成结果</div>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+                <p id="progressDetail">等待开始...</p>
+            </div>
+
+            <div id="resultArea" class="hidden">
+                <p id="resultMessage"></p>
+                <a id="resultLink" class="btn success-btn" href="#">查看结果</a>
+                <a id="downloadLink" class="btn success-btn" href="#" style="margin-left:10px;">下载CSV</a>
+            </div>
+
+            <div id="errorArea" class="hidden">
+                <p id="errorMessage" class="error-text"></p>
+                <button id="retryBtn" class="btn primary-btn">重新上传</button>
+            </div>
+        </div>
+    </main>
+
+    <footer class="main-footer">
+        <div class="container">
+            <p>© 2026 结直肠癌药物敏感性预测系统</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('uploadForm');
+            const btn = document.getElementById('predictBtn');
+            const progressArea = document.getElementById('progressArea');
+            const bar = document.getElementById('progressBar');
+            const msg = document.getElementById('progressDetail');
+            const resultArea = document.getElementById('resultArea');
+            const errorArea = document.getElementById('errorArea');
+            const taskId = document.getElementById('taskId').value;
+
+            const steps = [
+                document.getElementById('step1'),
+                document.getElementById('step2'),
+                document.getElementById('step3'),
+                document.getElementById('step4'),
+                document.getElementById('step5')
+            ];
+
+            let poll = null;
+            let xhr = null;
+
+            form.onsubmit = (e) => {
+                e.preventDefault();
+                btn.disabled = true;
+                btn.textContent = "提交中...";
+                progressArea.classList.remove('hidden');
+                resultArea.classList.add('hidden');
+                errorArea.classList.add('hidden');
+
+                const fd = new FormData(form);
+                xhr = new XMLHttpRequest();
+                xhr.open('POST', '/upload_predict', true);
+
+                xhr.onload = () => {
+                    clearInterval(poll);
+                    btn.disabled = false;
+                    btn.textContent = "开始预测";
+                    try {
+                        const res = JSON.parse(xhr.responseText);
+                        if(res.status === 'success'){
+                            document.getElementById('resultMessage').textContent = res.msg;
+                            document.getElementById('resultLink').href = res.result_url;
+                            document.getElementById('downloadLink').href = res.download_url;
+                            resultArea.classList.remove('hidden');
+                            progressArea.classList.add('hidden');
+                        }else{
+                            document.getElementById('errorMessage').textContent = res.msg;
+                            errorArea.classList.remove('hidden');
+                            progressArea.classList.add('hidden');
+                        }
+                    }catch(e){
+                        document.getElementById('errorMessage').textContent = "服务器响应异常";
+                        errorArea.classList.remove('hidden');
+                    }
+                };
+
+                xhr.onerror = () => {
+                    clearInterval(poll);
+                    btn.disabled = false;
+                    btn.textContent = "开始预测";
+                    document.getElementById('errorMessage').textContent = "网络错误";
+                    errorArea.classList.remove('hidden');
+                };
+
+                xhr.send(fd);
+                startPoll();
+            };
+
+            function startPoll(){
+                poll = setInterval(() => {
+                    fetch(`/get_progress/${taskId}`)
+                        .then(r=>r.json())
+                        .then(p=>{
+                            bar.style.width = p.percentage + '%';
+                            msg.textContent = p.message;
+                            steps.forEach((el,i)=>{
+                                if(i+1 <= p.step) el.classList.add('active');
+                                else el.classList.remove('active');
+                            });
+                            if(p.percentage >= 100 || p.message.includes('错误')) clearInterval(poll);
+                        });
+                }, 500);
+            }
+
+            document.getElementById('retryBtn').onclick = () => {
+                form.reset();
+                errorArea.classList.add('hidden');
+                btn.disabled = false;
+                btn.textContent = "开始预测";
+            };
+        });
+    </script>
+</body>
+</html>

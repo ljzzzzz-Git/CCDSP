@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>结直肠癌药物敏感性预测系统</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+<div class="navbar">
+    <div class="container nav-wrap">
+        <a href="/" class="logo"><i class="fa-solid fa-dna"></i> 结直肠癌预测系统</a>
+        <div class="menu">
+            <a href="/" class="active">首页</a>
+            <a href="/predict">开始预测</a>
+            <a href="/reference">参考数据</a>
+            <a href="/guide">使用指南</a>
+        </div>
+    </div>
+</div>
+
+<div class="hero">
+    <div class="container hero-inner">
+        <h1>结直肠癌药物敏感性智能预测平台</h1>
+        <p>基于多组学数据与深度学习模型，提供精准用药预测方案</p>
+        <div class="hero-btns">
+            <a href="/predict" class="btn primary">立即预测</a>
+            <a href="/guide" class="btn second">查看指南</a>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="grid">
+        <div class="card-item" onclick="location.href='/predict'">
+            <i class="fa-solid fa-flask-vial"></i>
+            <h3>药物预测</h3>
+            <p>上传三组组学数据，一键生成预测结果</p>
+        </div>
+        <div class="card-item" onclick="location.href='/reference'">
+            <i class="fa-solid fa-file-csv"></i>
+            <h3>参考数据</h3>
+            <p>标准数据集免费下载，直接用于测试</p>
+        </div>
+        <div class="card-item" onclick="location.href='/guide'">
+            <i class="fa-solid fa-book-open-reader"></i>
+            <h3>使用指南</h3>
+            <p>图文教程，快速上手系统操作</p>
+        </div>
+    </div>
+</div>
+
+<style>
+    *{margin:0;padding:0;box-sizing:border-box;font-family: "Microsoft YaHei",sans-serif;}
+    body{background:#f5f7fa;}
+    .container{width:100%;max-width:1200px;margin:0 auto;padding:0 20px;}
+    .navbar{background:#0d47a1;padding:18px 0;position:sticky;top:0;z-index:999;}
+    .nav-wrap{display:flex;justify-content:space-between;align-items:center;}
+    .logo{color:#fff;font-size:18px;font-weight:bold;text-decoration:none;display:flex;align-items:center;gap:8px;}
+    .menu{display:flex;gap:30px;}
+    .menu a{color:rgba(255,255,255,0.9);text-decoration:none;font-size:15px;}
+    .menu a.active,.menu a:hover{color:#fff;font-weight:bold;}
+    .hero{background:linear-gradient(135deg,#0d47a1,#1976d2);color:#fff;text-align:center;padding:90px 0;margin-bottom:40px;}
+    .hero h1{font-size:34px;margin-bottom:16px;}
+    .hero p{font-size:16px;max-width:700px;margin:0 auto 30px;line-height:1.7;opacity:0.95;}
+    .hero-btns{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;}
+    .btn{padding:14px 28px;border-radius:8px;text-decoration:none;font-weight:500;}
+    .btn.primary{background:#fff;color:#0d47a1;}
+    .btn.second{background:#1565c0;color:#fff;}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px;margin-bottom:40px;}
+    .card-item{background:#fff;border-radius:16px;padding:36px 24px;text-align:center;box-shadow:0 6px 16px rgba(0,0,0,0.05);cursor:pointer;transition:0.3s;}
+    .card-item:hover{transform:translateY(-6px);box-shadow:0 12px 24px rgba(0,0,0,0.1);}
+    .card-item i{font-size:42px;color:#1565c0;margin-bottom:16px;}
+    .card-item h3{margin-bottom:10px;color:#222;}
+    .card-item p{color:#666;line-height:1.6;font-size:14px;}
+</style>
+
+</body>
+</html>
